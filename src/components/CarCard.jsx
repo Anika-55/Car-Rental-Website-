@@ -9,6 +9,9 @@ const CarCard = ({ car }) => {
   // Safety check: don't render if car is undefined
   if (!car) return null;
 
+  // Corrected field name
+  const isAvailable = car.isAvaliable; // note: MongoDB field is 'isAvaliable'
+
   return (
     <div
       onClick={() => {
@@ -23,9 +26,13 @@ const CarCard = ({ car }) => {
           alt={`${car.brand} ${car.model}`}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        {car.isAvailable && (
-          <p className="absolute top-4 left-4 bg-primary/90 text-white text-xs px-2.5 py-1 rounded-full">
+        {isAvailable ? (
+          <p className="absolute top-4 left-4 bg-green-400/60 text-white text-xs px-2.5 py-1 rounded-full">
             Available Now
+          </p>
+        ) : (
+          <p className="absolute top-4 left-4 bg-red-400/60 text-white text-xs px-2.5 py-1 rounded-full">
+            Unavailable
           </p>
         )}
         <div className="absolute bottom-4 right-4 bg-black/80 backdrop-blur-sm text-white px-3 py-2 rounded-lg">

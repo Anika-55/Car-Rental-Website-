@@ -6,9 +6,10 @@ import {
   signInWithPopup,
   updateProfile,
 } from "firebase/auth";
+import { FaGoogle, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 
 const Login = () => {
-  const [state, setState] = useState("login");
+  const [state, setState] = useState("login"); // "login" or "signup"
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -31,17 +32,18 @@ const Login = () => {
           formData.email,
           formData.password
         );
+        alert("Logged in successfully!");
       } else {
         const res = await createUserWithEmailAndPassword(
           auth,
           formData.email,
           formData.password
         );
-        // Update display name and photoURL
         await updateProfile(res.user, {
           displayName: formData.name,
           photoURL: formData.photoURL || null,
         });
+        alert("Account created successfully!");
       }
     } catch (err) {
       console.error(err);
@@ -52,6 +54,7 @@ const Login = () => {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      alert("Logged in with Google!");
     } catch (err) {
       console.error(err);
       alert(err.message);
@@ -59,83 +62,123 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center mt-16">
-      <form
-        onSubmit={handleSubmit}
-        className="sm:w-[350px] w-full text-center border border-gray-300/60 rounded-2xl px-8 py-8 bg-white"
-      >
-        <h1 className="text-gray-900 text-3xl font-medium mb-2">
-          {state === "login" ? "Login" : "Sign Up"}
-        </h1>
+    <div className="flex h-[700px] w-full">
+      <div className="w-full hidden md:inline-block">
+        <img
+          className="h-full"
+          src="https://raw.githubusercontent.com/prebuiltui/prebuiltui/main/assets/login/leftSideImage.png"
+          alt="leftSideImage"
+        />
+      </div>
 
-        {state !== "login" && (
-          <>
+      <div className="w-full flex flex-col items-center justify-center">
+        <form
+          onSubmit={handleSubmit}
+          className="md:w-96 w-80 flex flex-col items-center justify-center"
+        >
+          <h2 className="text-4xl text-gray-900 font-medium">
+            {state === "login" ? "Sign in" : "Sign up"}
+          </h2>
+          <p className="text-sm text-gray-500/90 mt-3">
+            {state === "login"
+              ? "Welcome back! Please sign in to continue"
+              : "Create a new account"}
+          </p>
+
+          {/* Google Sign-In */}
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full gap-2"
+          >
+            <FaGoogle className="text-red-500" size={20} />
+            Continue with Google
+          </button>
+
+          <div className="flex items-center gap-4 w-full my-5">
+            <div className="w-full h-px bg-gray-300/90"></div>
+            <p className="w-full text-nowrap text-sm text-gray-500/90">
+              or {state} with email
+            </p>
+            <div className="w-full h-px bg-gray-300/90"></div>
+          </div>
+
+          {/* Name field for signup */}
+          {state === "signup" && (
+            <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
+              <FaUser className="text-gray-400" />
+              <input
+                type="text"
+                name="name"
+                placeholder="Name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full outline-none"
+                required
+              />
+            </div>
+          )}
+
+          {/* Email */}
+          <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
+            <FaEnvelope className="text-gray-400" />
             <input
-              type="text"
-              name="name"
-              placeholder="Name"
-              className="input input-bordered w-full mb-3"
-              value={formData.name}
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
               onChange={handleChange}
+              className="w-full outline-none"
               required
             />
+          </div>
+
+          {/* Password */}
+          <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
+            <FaLock className="text-gray-400" />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full outline-none"
+              required
+            />
+          </div>
+
+          {/* Photo URL for signup */}
+          {state === "signup" && (
             <input
               type="text"
               name="photoURL"
               placeholder="Photo URL (optional)"
-              className="input input-bordered w-full mb-3"
               value={formData.photoURL}
               onChange={handleChange}
+              className="w-full h-12 px-4 mb-4 border rounded-full outline-none"
             />
-          </>
-        )}
+          )}
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="input input-bordered w-full mb-3"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="input input-bordered w-full mb-3"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+          <button
+            type="submit"
+            className="mt-4 w-full h-12 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity"
+          >
+            {state === "login" ? "Login" : "Sign Up"}
+          </button>
 
-        <button
-          type="submit"
-          className="btn w-full bg-indigo-500 text-white mb-3"
-        >
-          {state === "login" ? "Login" : "Sign Up"}
-        </button>
-
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          className="btn w-full bg-red-500 text-white"
-        >
-          Sign in with Google
-        </button>
-
-        <p
-          onClick={() =>
-            setState((prev) => (prev === "login" ? "register" : "login"))
-          }
-          className="text-gray-500 text-sm mt-3 cursor-pointer"
-        >
-          {state === "login"
-            ? "Don't have an account?"
-            : "Already have an account?"}{" "}
-          <span className="text-indigo-500 hover:underline">Click here</span>
-        </p>
-      </form>
+          <p className="text-gray-500/90 text-sm mt-4">
+            {state === "login"
+              ? "Don't have an account?"
+              : "Already have an account?"}{" "}
+            <span
+              onClick={() => setState(state === "login" ? "signup" : "login")}
+              className="text-indigo-400 hover:underline cursor-pointer"
+            >
+              {state === "login" ? "Sign up" : "Login"}
+            </span>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };
