@@ -11,10 +11,11 @@ import { assets } from "../assets/assets";
 import Title from "../components/Title";
 
 const Home = () => {
-  const cars = useLoaderData();
+  const loaderCars = useLoaderData();
   const navigate = useNavigate();
 
-  const featuredCars = cars ? cars.slice(0, 4) : [];
+  const cars = loaderCars || []; // <-- directly use loaderCars array
+  const featuredCars = cars.slice(0, 4); // first 4 cars
 
   return (
     <div className="flex flex-col min-h-screen">
