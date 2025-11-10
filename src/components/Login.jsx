@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth, googleProvider } from "../firebase/firebase.config";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   updateProfile,
+  onAuthStateChanged,
+  signOut,
 } from "firebase/auth";
 import { FaGoogle, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
 
@@ -17,6 +19,16 @@ const Login = () => {
     photoURL: "",
   });
 
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Track user authentication state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -24,7 +36,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       if (state === "login") {
         await signInWithEmailAndPassword(
@@ -61,6 +72,11 @@ const Login = () => {
     }
   };
 
+  const handleLogout = async () => {
+    await signOut(auth);
+    alert("Logged out successfully!");
+  };
+
   return (
     <div className="flex h-[700px] w-full">
       <div className="w-full hidden md:inline-block">
@@ -86,14 +102,16 @@ const Login = () => {
           </p>
 
           {/* Google Sign-In */}
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full gap-2"
-          >
-            <FaGoogle className="text-red-500" size={20} />
-            Continue with Google
-          </button>
+          {!currentUser && (
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full gap-2"
+            >
+              <FaGoogle className="text-red-500" size={20} />
+              Continue with Google
+            </button>
+          )}
 
           <div className="flex items-center gap-4 w-full my-5">
             <div className="w-full h-px bg-gray-300/90"></div>
@@ -159,12 +177,32 @@ const Login = () => {
             />
           )}
 
-          <button
-            type="submit"
-            className="mt-4 w-full h-12 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity"
-          >
-            {state === "login" ? "Login" : "Sign Up"}
-          </button>
+          {/* Submit button or user profile */}
+          {currentUser ? (
+            <div className="flex items-center gap-2 mt-4">
+              <img
+                src={currentUser.photoURL || "https://via.placeholder.com/40"}
+                alt={currentUser.displayName || "User"}
+                className="w-10 h-10 rounded-full"
+              />
+              <span className="text-gray-700">
+                {currentUser.displayName || currentUser.email}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="ml-2 px-3 py-1 bg-red-500 text-white rounded"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button
+              type="submit"
+              className="mt-4 w-full h-12 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity"
+            >
+              {state === "login" ? "Login" : "Sign Up"}
+            </button>
+          )}
 
           <p className="text-gray-500/90 text-sm mt-4">
             {state === "login"

@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import CarCard from "../components/CarCard";
 import { useLoaderData } from "react-router-dom";
-import Footer from "../components/Footer";
 import { assets } from "../assets/assets";
-import Title from "../components/Title"; // assuming you have a Title component
+import Title from "../components/Title";
 
 const Cars = () => {
-  const data = useLoaderData(); // get data from loader
-  console.log(data); // should show an array of car objects
+  const data = useLoaderData();
+  console.log(data);
 
-  const [input, setInput] = useState(""); // move useState to top level
-
-  // filter cars based on search input
+  const [input, setInput] = useState("");
   const filteredCars = data.filter(
     (car) =>
       car.brand.toLowerCase().includes(input.toLowerCase()) ||
@@ -21,7 +18,7 @@ const Cars = () => {
 
   return (
     <div>
-      <div className="flex flex-col items-center py-20 bg-light max-md:px-4">
+      <div className="flex flex-col items-center py-20 bg-light max-md:px-4 bg-blue-100 rounded-sm">
         <Title
           title="Available Cars"
           subTitle="Browse our selection of premium vehicles available for your next adventure"
@@ -31,7 +28,7 @@ const Cars = () => {
           <img src={assets.search_icon} alt="" className="w-4.5 h-4.5 mr-2" />
 
           <input
-            onChange={(e) => setInput(e.target.value)} // changed from onClick to onChange
+            onChange={(e) => setInput(e.target.value)}
             value={input}
             type="text"
             placeholder="Search by make, model, or features"
@@ -46,13 +43,11 @@ const Cars = () => {
         {filteredCars && filteredCars.length > 0 ? (
           filteredCars.map((car) => <CarCard key={car._id} car={car} />)
         ) : (
-          <p className="text-center col-span-full text-gray-500">
+          <p className="text-center col-span-full font-extrabold text-gray-500">
             No cars found.
           </p>
         )}
       </div>
-
-      <Footer />
     </div>
   );
 };

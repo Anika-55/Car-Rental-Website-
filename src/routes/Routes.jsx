@@ -5,6 +5,8 @@ import MainLayout from "../layout/MainLayout";
 import CarDetails from "../pages/CarDetails";
 import Cars from "../pages/Cars";
 import MyBookings from "../pages/MyBookings";
+import AddCar from "../pages/AddCar";
+import MyListing from "../pages/MyListing";
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +25,8 @@ export const router = createBrowserRouter([
       {
         path: "car-details/:id",
         element: <CarDetails />,
+        loader: ({ params }) =>
+          fetch(`http://localhost:3000/cars/${params.id}`),
       },
       {
         path: "cars",
@@ -32,6 +36,14 @@ export const router = createBrowserRouter([
       {
         path: "my-bookings",
         element: <MyBookings />,
+      },
+      {
+        path: "add-car",
+        element: <AddCar />,
+      },
+      {
+        path: "my-listing",
+        element: <MyListing />,
       },
     ],
   },

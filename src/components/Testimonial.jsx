@@ -1,104 +1,70 @@
 import React from "react";
+import Title from "./Title";
+import { assets } from "../assets/assets";
 
 const Testimonial = () => {
-  const cardsData = [
+  const testimonials = [
     {
-      image:
-        "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200",
-      name: "Briar Martin",
-      handle: "@neilstellar",
+      name: "Emma Rodriguez",
+      location: "Barcelona, Spain",
+      image: assets.testimonial_image_1,
+      testimonial:
+        "I've rented cars from various companies, but the experience with CarRental was exceptional",
     },
     {
-      image:
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200",
-      name: "Avery Johnson",
-      handle: "@averywrites",
+      name: "John Smith",
+      location: "New York, USA",
+      image: assets.testimonial_image_2,
+      testimonial:
+        "CarRental made my trip so much easier. The car was delivered right to my door, and the customer service was fantastic",
     },
     {
-      image:
-        "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=200&auto=format&fit=crop&q=60",
-      name: "Jordan Lee",
-      handle: "@jordantalks",
-    },
-    {
-      image:
-        "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=200&auto=format&fit=crop&q=60",
-      name: "Avery Johnson",
-      handle: "@averywrites",
+      name: "Ava Johnson",
+      location: "Sydney, Australia",
+      image: assets.testimonial_image_1,
+      testimonial:
+        "I highly recommend CarRental ! Their fleet is amazing , and I always feel like I'm getting the best deal with excellent service",
     },
   ];
 
-  const CreateCard = ({ card }) => (
-    <div className="p-4 rounded-lg mx-4 shadow hover:shadow-lg transition-all duration-200 w-72 shrink-0">
-      <div className="flex gap-2">
-        <img
-          className="size-11 rounded-full"
-          src={card.image}
-          alt="User Image"
-        />
-        <div className="flex flex-col">
-          <div className="flex items-center gap-1">
-            <p>{card.name}</p>
-            <svg
-              className="mt-0.5 fill-blue-500"
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M4.555.72a4 4 0 0 1-.297.24c-.179.12-.38.202-.59.244a4 4 0 0 1-.38.041c-.48.039-.721.058-.922.129a1.63 1.63 0 0 0-.992.992c-.071.2-.09.441-.129.922a4 4 0 0 1-.041.38 1.6 1.6 0 0 1-.245.59 3 3 0 0 1-.239.297c-.313.368-.47.551-.56.743-.213.444-.213.96 0 1.404.09.192.247.375.56.743.125.146.187.219.24.297.12.179.202.38.244.59.018.093.026.189.041.38.039.48.058.721.129.922.163.464.528.829.992.992.2.071.441.09.922.129.191.015.287.023.38.041.21.042.411.125.59.245.078.052.151.114.297.239.368.313.551.47.743.56.444.213.96.213 1.404 0 .192-.09.375-.247.743-.56.146-.125.219-.187.297-.24.179-.12.38-.202.59-.244a4 4 0 0 1 .38-.041c.48-.039.721-.058.922-.129.464-.163.829-.528.992-.992.071-.2.09-.441.129-.922a4 4 0 0 1 .041-.38c.042-.21.125-.411.245-.59.052-.078.114-.151.239-.297.313-.368.47-.551.56-.743.213-.444.213-.96 0-1.404-.09-.192-.247-.375-.56-.743a4 4 0 0 1-.24-.297 1.6 1.6 0 0 1-.244-.59 3 3 0 0 1-.041-.38c-.039-.48-.058-.721-.129-.922a1.63 1.63 0 0 0-.992-.992c-.2-.071-.441-.09-.922-.129a4 4 0 0 1-.38-.041 1.6 1.6 0 0 1-.59-.245A3 3 0 0 1 7.445.72C7.077.407 6.894.25 6.702.16a1.63 1.63 0 0 0-1.404 0c-.192.09-.375.247-.743.56m4.07 3.998a.488.488 0 0 0-.691-.69l-2.91 2.91-.958-.957a.488.488 0 0 0-.69.69l1.302 1.302c.19.191.5.191.69 0z"
-              />
-            </svg>
-          </div>
-          <span className="text-xs text-slate-500">{card.handle}</span>
-        </div>
-      </div>
-      <p className="text-sm py-4 text-gray-800">
-        Radiant made undercutting all of our competitors an absolute breeze.
-      </p>
-    </div>
-  );
-
   return (
-    <>
-      <style>{`
-            @keyframes marqueeScroll {
-                0% { transform: translateX(0%); }
-                100% { transform: translateX(-50%); }
-            }
+    <div className="py-28 px-6 md:px-16 lg:px-24 xl:px-44">
+      <Title
+        title="Whats Our Customers Say"
+        subTitle="Discover why discerning travelers choose stayVenture for their luxury accommodations around the world."
+      ></Title>
 
-            .marquee-inner {
-                animation: marqueeScroll 25s linear infinite;
-            }
-
-            .marquee-reverse {
-                animation-direction: reverse;
-            }
-        `}</style>
-
-      <div className="marquee-row w-full mx-auto max-w-5xl overflow-hidden relative">
-        <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent"></div>
-        <div className="marquee-inner flex transform-gpu min-w-[200%] pt-10 pb-5">
-          {[...cardsData, ...cardsData].map((card, index) => (
-            <CreateCard key={index} card={card} />
-          ))}
-        </div>
-        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-18">
+        {testimonials.map((testimonial, index) => (
+          <div
+            key={index}
+            className="bg-white p-6 rounded-xl shadow-lg hover:-translate-y-1 transition-all duration-500"
+          >
+            <div className="flex items-center gap-3">
+              <img
+                className="w-12 h-12 rounded-full"
+                src={testimonial.image}
+                alt={testimonial.name}
+              />
+              <div>
+                <p className=" text-xl">{testimonial.name}</p>
+                <p className="text-gray-500">{testimonial.location}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 mt-4">
+              {Array(5)
+                .fill(0)
+                .map((_, index) => (
+                  <img key={index} src={assets.star_icon}></img>
+                ))}
+            </div>
+            <p className="text-gray-500 max-w-90 mt-4 font-light">
+              "{testimonial.testimonial}"
+            </p>
+          </div>
+        ))}
       </div>
-
-      <div className="marquee-row w-full mx-auto max-w-5xl overflow-hidden relative">
-        <div className="absolute left-0 top-0 h-full w-20 z-10 pointer-events-none bg-gradient-to-r from-white to-transparent"></div>
-        <div className="marquee-inner marquee-reverse flex transform-gpu min-w-[200%] pt-10 pb-5">
-          {[...cardsData, ...cardsData].map((card, index) => (
-            <CreateCard key={index} card={card} />
-          ))}
-        </div>
-        <div className="absolute right-0 top-0 h-full w-20 md:w-40 z-10 pointer-events-none bg-gradient-to-l from-white to-transparent"></div>
-      </div>
-    </>
+    </div>
   );
 };
 
