@@ -9,6 +9,7 @@ import Newsletter from "../components/Newsletter";
 import Footer from "../components/Footer";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
+import { motion } from "motion/react";
 
 const Home = () => {
   const loaderCars = useLoaderData();
@@ -24,27 +25,40 @@ const Home = () => {
 
       {/* Featured Cars */}
       <section className="p-6 ">
-        <div className="mt-15">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.5 }}
+          className="mt-15"
+        >
           <Title
             title="Featured Vehicles"
             subTitle="Explore our section of premium vehicles available for your next adventure."
           ></Title>
-        </div>
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="grid sm:grid-cols-2 md:grid-cols-4 gap-6 mb-6"
+        >
           {featuredCars.length > 0 ? (
             featuredCars.map((car) => <CarCard key={car._id} car={car} />)
           ) : (
             <p>No cars available</p>
           )}
-        </div>
+        </motion.div>
 
         <div className="flex items-center">
-          <button
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.4 }}
             onClick={() => navigate("/cars")}
             className="flex items-center justify-center gap-2 px-6 py-2 border border-borderColor hover:bg-gray-100 rounded-md mt-18 cursor-pointer"
           >
             Explore All Cars <img src={assets.arrow_icon} alt="" />
-          </button>
+          </motion.button>
         </div>
       </section>
       <div className="mt-15 mb-22">
