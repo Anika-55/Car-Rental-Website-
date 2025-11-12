@@ -2,15 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
 import Loader from "../components/Loader";
+import { toast } from "react-toastify";
 
 const CarDetails = () => {
-  const data = useLoaderData();
-  console.log(data);
   const { id } = useParams();
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
+  const [pickupDate, setPickupDate] = useState("");
+  const [returnDate, setReturnDate] = useState("");
   const currency = import.meta.env.VITE_CURRENCY || "$";
+
+  // Mock logged-in user, replace with actual auth
+  const user = {
+    name: "John Doe",
+    email: "johndoe@example.com",
+  };
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -26,6 +33,46 @@ const CarDetails = () => {
     fetchCar();
   }, [id]);
 
+  const handleBooking = async (e) => {
+    e.preventDefault();
+    if (!pickupDate || !returnDate) return alert("Select dates");
+
+    const bookingData = {
+      carId: car._id,
+      carBrand: car.brand,
+      carModel: car.model,
+      carImage: car.image,
+      carYear: car.year,
+      carCategory: car.category,
+      carLocation: car.location,
+      pricePerDay: car.pricePerDay,
+      userName: user.name,
+      userEmail: user.email,
+      pickupDate,
+      returnDate,
+      status: "confirmed", // default status
+      createdAt: new Date().toISOString(), // store booking date
+    };
+
+    try {
+      const res = await fetch("http://localhost:3000/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bookingData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Booking successful!");
+        navigate("/my-bookings"); // redirect to MyBookings page
+      } else {
+        toast.error("Booking failed");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.warning("Something went wrong");
+    }
+  };
+
   if (error) return <p className="text-red-500 text-center mt-10">{error}</p>;
   if (!car) return <Loader />;
 
@@ -40,7 +87,6 @@ const CarDetails = () => {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-        {/* Left: Car Image & Info */}
         <div className="lg:col-span-2">
           <img
             src={car.image}
@@ -76,8 +122,6 @@ const CarDetails = () => {
                 </div>
               ))}
             </div>
-
-            {/* Description */}
             <div>
               <h1 className="text-xl font-medium mb-3">Description</h1>
               <p className="text-gray-500">{car.description}</p>
@@ -85,8 +129,10 @@ const CarDetails = () => {
           </div>
         </div>
 
-        {/* Right: Booking form */}
-        <form className="shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500">
+        <form
+          onSubmit={handleBooking}
+          className="shadow-lg h-max sticky top-18 rounded-xl p-6 space-y-6 text-gray-500"
+        >
           <p className="flex items-center justify-between text-2xl text-gray-800 font-semibold">
             {currency}
             {car.pricePerDay}{" "}
@@ -98,23 +144,30 @@ const CarDetails = () => {
             <label htmlFor="pickup-date">Pickup Date</label>
             <input
               type="date"
-              className="border border-borderColor px-3 py-2 rounded-lg"
               id="pickup-date"
+              className="border border-borderColor px-3 py-2 rounded-lg"
               required
               min={new Date().toISOString().split("T")[0]}
+              value={pickupDate}
+              onChange={(e) => setPickupDate(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-2">
             <label htmlFor="return-date">Return Date</label>
             <input
               type="date"
-              className="border border-borderColor px-3 py-2 rounded-lg"
               id="return-date"
+              className="border border-borderColor px-3 py-2 rounded-lg"
               required
+              value={returnDate}
+              onChange={(e) => setReturnDate(e.target.value)}
             />
           </div>
 
-          <button className="w-full bg-primary hover:bg-primary-dull transition-all py-3 font-medium text-white rounded-xl cursor-pointer">
+          <button
+            type="submit"
+            className="w-full bg-primary hover:bg-primary-dull transition-all py-3 font-medium text-white rounded-xl cursor-pointer"
+          >
             Book Now
           </button>
           <p className="text-center text-sm">

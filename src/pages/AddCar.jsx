@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
+import { AuthContext } from "../Contexts/AuthContext";
+import { toast } from "react-toastify";
 
 const AddCar = () => {
+  const { user } = useContext(AuthContext);
   const currency = import.meta.env.VITE_CURRENCY || "$";
 
   const [image, setImage] = useState(null);
@@ -21,51 +24,113 @@ const AddCar = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    try {
+      await fetch("http://localhost:3000/cars", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...car,
+          providerName: user?.name,
+          providerEmail: user?.email,
+          image: image || "",
+          isBooked: false,
+        }),
+      });
+
+      toast.success("Car listed successfully!");
+
+      // Reset form
+      setCar({
+        brand: "",
+        model: "",
+        year: 0,
+        pricePerDay: 0,
+        category: "",
+        transmission: "",
+        fuel_type: "",
+        seating_capacity: 0,
+        location: "",
+        description: "",
+      });
+      setImage(null);
+    } catch (error) {
+      console.error("Error adding car:", error);
+      toast.error("Failed to add car.");
+    }
   };
+
   return (
     <div className="px-4 py-10 md:px-10 flex-1 items-center">
       <Title
         title="Add New Car"
         subTitle="Fill in details to list a new car for booking, including pricing, availability, and car specifications"
-      ></Title>
+      />
 
       <form
         onSubmit={onSubmitHandler}
         className="flex flex-col gap-5 text-gray-500 text-sm mt-6 max-w-xl"
       >
         {/* Car image */}
-        <div className="flex items-center gap-2 w-full">
-          <label htmlFor="car-image">
+        <div className="flex flex-col gap-2 w-full">
+          <label htmlFor="car-image-url" className="flex items-center gap-2">
             <img
-              src={image ? URL.createObjectURL(image) : assets.upload_icon}
-              alt=""
-              className="h-14 rounded cursor-pointer"
+              src={image ? image : assets.upload_icon}
+              alt="Car"
+              className="h-14 w-14 object-cover rounded cursor-pointer border border-borderColor"
             />
             <input
-              type="file"
-              id="car-image"
-              accept="image/*"
-              hidden
-              onChange={(e) => setImage(e.target.files[0])}
+              type="text"
+              id="car-image-url"
+              placeholder="Enter image URL"
+              className="border p-2 rounded flex-1 border-borderColor outline-none"
+              value={image || ""}
+              onChange={(e) => setImage(e.target.value)}
             />
           </label>
-          <p className="text-sm text-gray-500">Upload a picture of your car</p>
+          <p className="text-sm text-gray-500">
+            Enter the URL of your car image
+          </p>
         </div>
 
-        {/* car brand and model */}
+        {/* Provider Name and Email */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col w-full">
+            <label>Provider Name</label>
+            <input
+              type="text"
+              value={user?.name || ""}
+              readOnly
+              className="px-3 py-2 mt-1 border border-borderColor rounded-md outline-none bg-gray-100 cursor-not-allowed"
+            />
+          </div>
+
+          <div className="flex flex-col w-full">
+            <label>Provider Email</label>
+            <input
+              type="email"
+              value={user?.email || ""}
+              readOnly
+              className="px-3 py-2 mt-1 border border-borderColor rounded-md outline-none bg-gray-100 cursor-not-allowed"
+            />
+          </div>
+        </div>
+
+        {/* Brand & Model */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col w-full">
             <label>Brand</label>
             <input
               type="text"
-              placeholder="e.g. BMW, M ercedes, Audi...."
+              placeholder="e.g. BMW, Mercedes, Audi..."
               required
               className="px-3 py-2 mt-1 border border-borderColor rounded-md outline-none"
               value={car.brand}
               onChange={(e) => setCar({ ...car, brand: e.target.value })}
             />
           </div>
-
           <div className="flex flex-col w-full">
             <label>Model</label>
             <input
@@ -78,8 +143,9 @@ const AddCar = () => {
             />
           </div>
         </div>
-        {/* car year, price, category */}
-        <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 gap-6">
+
+        {/* Year, Price, Category */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           <div className="flex flex-col w-full">
             <label>Year</label>
             <input
@@ -111,14 +177,14 @@ const AddCar = () => {
             >
               <option value="">Select a category</option>
               <option value="Sedan">Sedan</option>
-              <option value="SUN">SUN</option>
+              <option value="SUV">SUV</option>
               <option value="Van">Van</option>
             </select>
           </div>
         </div>
 
-        {/* car Transmission, Fuel type, seating capacity*/}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Transmission, Fuel, Seats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="flex flex-col w-full">
             <label>Transmission</label>
             <select
@@ -126,13 +192,12 @@ const AddCar = () => {
               value={car.transmission}
               className="px-3 py-2 mt-1 border border-borderColor rounded-md outline-none"
             >
-              <option value="">Select a Transmission</option>
+              <option value="">Select Transmission</option>
               <option value="Automatic">Automatic</option>
               <option value="Manual">Manual</option>
               <option value="Semi-Automatic">Semi-Automatic</option>
             </select>
           </div>
-
           <div className="flex flex-col w-full">
             <label>Fuel Type</label>
             <select
@@ -140,10 +205,10 @@ const AddCar = () => {
               value={car.fuel_type}
               className="px-3 py-2 mt-1 border border-borderColor rounded-md outline-none"
             >
-              <option value="">Select a fuel type</option>
-              <option value="gas">Gas</option>
-              <option value="diesel">Diesel</option>
-              <option value="petrol">Petrol</option>
+              <option value="">Select Fuel Type</option>
+              <option value="Gas">Gas</option>
+              <option value="Diesel">Diesel</option>
+              <option value="Petrol">Petrol</option>
               <option value="Electric">Electric</option>
               <option value="Hybrid">Hybrid</option>
             </select>
@@ -162,7 +227,8 @@ const AddCar = () => {
             />
           </div>
         </div>
-        {/* car location */}
+
+        {/* Location */}
         <div className="flex flex-col w-full">
           <label>Location</label>
           <select
@@ -173,16 +239,17 @@ const AddCar = () => {
             <option value="">Select a location</option>
             <option value="New York">New York</option>
             <option value="Los Angeles">Los Angeles</option>
-            <option value="Huston">Huston</option>
+            <option value="Houston">Houston</option>
             <option value="Chicago">Chicago</option>
           </select>
         </div>
-        {/* car description */}
+
+        {/* Description */}
         <div className="flex flex-col w-full">
           <label>Description</label>
           <textarea
-            row={6}
-            placeholder="e.g.A luxurious SUV with a spacious interior and a powerful engine"
+            rows={6}
+            placeholder="A luxurious SUV with a spacious interior and a powerful engine"
             required
             className="px-3 py-2 mt-1 border border-borderColor rounded-md outline-none"
             value={car.description}

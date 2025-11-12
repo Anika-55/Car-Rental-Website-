@@ -5,11 +5,9 @@ import { assets } from "../assets/assets";
 import Title from "../components/Title";
 
 const Cars = () => {
-  // Get loader data
   const loaderData = useLoaderData();
 
-  // Ensure we have an array of cars
-  const data = loaderData || []; // <-- Adjust based on your loader
+  const data = loaderData || [];
 
   console.log(data);
 
