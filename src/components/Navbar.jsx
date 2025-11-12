@@ -55,15 +55,6 @@ const Navbar = ({ setShowLogin }) => {
           </Link>
         ))}
 
-        {/* <div className="hidden lg:flex items-center text-sm gap-2 border border-borderColor px-3 rounded-full max-w-56">
-          <input
-            type="text"
-            className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
-            placeholder="Search Products"
-          />
-          <img src={assets.search_icon} alt="search" />
-        </div> */}
-
         <div
           className="flex max-sm:flex-col items-start sm:items-center gap-6 relative"
           ref={dropdownRef}
@@ -80,13 +71,14 @@ const Navbar = ({ setShowLogin }) => {
 
               {/* Dropdown */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg">
-                  <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                    Profile
-                  </button>
-                  <button className="block w-full text-left px-4 py-2 hover:bg-gray-100">
-                    Settings
-                  </button>
+                <div className="absolute right-0 mt-2 w-60  bg-white border border-gray-200 rounded shadow-lg">
+                  <div className="px-4 py-2 border-b border-gray-100 text-gray-700 font-medium">
+                    {currentUser.displayName || currentUser.email}
+                  </div>
+
+                  <div className="px-4 py-2 border-b border-gray-100 text-gray-700 font-medium">
+                    {currentUser.email}
+                  </div>
                   <button
                     onClick={handleLogout}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-500"
