@@ -15,7 +15,6 @@ const CarDetails = () => {
   const [returnDate, setReturnDate] = useState("");
   const currency = import.meta.env.VITE_CURRENCY || "$";
 
-  // Mock logged-in user, replace with actual auth
   const [user] = useAuthState(auth);
 
   useEffect(() => {
