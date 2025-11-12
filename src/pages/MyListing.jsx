@@ -2,12 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase/firebase.config";
 import Title from "../components/Title";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 
 const MyListing = () => {
   const [user] = useAuthState(auth);
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingCar, setEditingCar] = useState(null);
 
+  // Fetch cars added by logged-in user
   const fetchMyCars = async () => {
     if (!user?.email) return;
     try {
@@ -16,31 +21,85 @@ const MyListing = () => {
       if (data.success) setCars(data.result);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch cars");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this car?")) return;
-    try {
-      const res = await fetch(`http://localhost:3000/cars/${id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.success) {
-        setCars(cars.filter((car) => car._id !== id));
-      } else {
-        alert("Failed to delete car");
-      }
-    } catch (err) {
-      console.error(err);
     }
   };
 
   useEffect(() => {
     fetchMyCars();
   }, [user]);
+
+  // Delete car
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(`http://localhost:3000/cars/${id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        if (data.success) {
+          setCars(cars.filter((car) => car._id !== id));
+          Swal.fire("Deleted!", "Your car has been deleted.", "success");
+        } else {
+          Swal.fire("Error!", "Failed to delete the car.", "error");
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Error!", "Something went wrong!", "error");
+      }
+    }
+  };
+
+  // Update car
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const updatedCar = {
+        brand: editingCar.brand,
+        model: editingCar.model,
+        category: editingCar.category,
+        pricePerDay: editingCar.pricePerDay,
+        image: editingCar.image,
+      };
+
+      const res = await fetch(`http://localhost:3000/cars/${editingCar._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedCar),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Car updated successfully!");
+        setCars((prev) =>
+          prev.map((c) =>
+            c._id === editingCar._id ? { ...c, ...updatedCar } : c
+          )
+        );
+        setEditingCar(null);
+      } else {
+        toast.error("Update failed!");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong!");
+    }
+  };
 
   if (!user)
     return (
@@ -54,6 +113,7 @@ const MyListing = () => {
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-16 text-sm max-w-7xl">
+      <ToastContainer position="top-right" />
       <Title
         title="My Listings"
         subTitle="Manage your added cars"
@@ -76,8 +136,13 @@ const MyListing = () => {
             </thead>
             <tbody>
               {cars.map((car) => (
-                <tr key={car._id} className="border-t hover:bg-gray-50">
-                  <td className="py-3 px-5 font-medium">
+                <tr key={car._id} className="border-t hover:bg-gray-50 ">
+                  <td className="py-3 px-5 font-medium flex items-center gap-3">
+                    <img
+                      src={car.image}
+                      alt={car.model}
+                      className="w-12 h-12 object-cover rounded"
+                    />
                     {car.brand} {car.model}
                   </td>
                   <td className="py-3 px-5">{car.category}</td>
@@ -93,10 +158,10 @@ const MyListing = () => {
                       {car.isBooked ? "Booked" : "Available"}
                     </span>
                   </td>
-                  <td className="py-3 px-5 flex gap-3">
+                  <td className="py-5 px-5 flex gap-3">
                     <button
                       className="text-blue-600 hover:underline"
-                      onClick={() => alert("Update feature coming soon")}
+                      onClick={() => setEditingCar(car)}
                     >
                       Update
                     </button>
@@ -111,6 +176,124 @@ const MyListing = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Update Modal */}
+      {editingCar && (
+        <div className="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative">
+            <h3 className="text-xl font-semibold mb-4 text-gray-800">
+              ✏️ Update Car Details
+            </h3>
+            <form onSubmit={handleUpdate} className="flex flex-col gap-4">
+              {/* Brand */}
+              <div>
+                <label className="block text-sm mb-1 font-medium">Brand</label>
+                <input
+                  type="text"
+                  value={editingCar.brand}
+                  onChange={(e) =>
+                    setEditingCar({ ...editingCar, brand: e.target.value })
+                  }
+                  className="border p-2 rounded w-full border-borderColor outline-none"
+                  required
+                />
+              </div>
+
+              {/* Model */}
+              <div>
+                <label className="block text-sm mb-1 font-medium">Model</label>
+                <input
+                  type="text"
+                  value={editingCar.model}
+                  onChange={(e) =>
+                    setEditingCar({ ...editingCar, model: e.target.value })
+                  }
+                  className="border p-2 rounded w-full border-borderColor outline-none"
+                  required
+                />
+              </div>
+
+              {/* Price */}
+              <div>
+                <label className="block text-sm mb-1 font-medium">
+                  Price Per Day
+                </label>
+                <input
+                  type="number"
+                  value={editingCar.pricePerDay}
+                  onChange={(e) =>
+                    setEditingCar({
+                      ...editingCar,
+                      pricePerDay: e.target.value,
+                    })
+                  }
+                  className="border p-2 rounded w-full border-borderColor outline-none"
+                  required
+                />
+              </div>
+
+              {/* Category */}
+              <div>
+                <label className="block text-sm mb-1 font-medium">
+                  Category
+                </label>
+                <select
+                  value={editingCar.category}
+                  onChange={(e) =>
+                    setEditingCar({ ...editingCar, category: e.target.value })
+                  }
+                  className="border p-2 rounded w-full border-borderColor outline-none"
+                >
+                  <option value="Sedan">Sedan</option>
+                  <option value="SUV">SUV</option>
+                  <option value="Van">Van</option>
+                </select>
+              </div>
+
+              {/* Image URL */}
+              <div>
+                <label className="block text-sm mb-1 font-medium">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={editingCar.image || ""}
+                  onChange={(e) =>
+                    setEditingCar({ ...editingCar, image: e.target.value })
+                  }
+                  className="border p-2 rounded w-full border-borderColor outline-none"
+                  placeholder="Enter image URL"
+                  required
+                />
+                {editingCar.image && (
+                  <img
+                    src={editingCar.image}
+                    alt="Preview"
+                    className="w-20 h-20 object-cover rounded mt-2"
+                  />
+                )}
+              </div>
+
+              {/* Buttons */}
+              <div className="flex justify-end gap-3 mt-5">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  onClick={() => setEditingCar(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

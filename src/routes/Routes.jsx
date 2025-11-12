@@ -8,6 +8,7 @@ import MyBookings from "../pages/MyBookings";
 import AddCar from "../pages/AddCar";
 import MyListing from "../pages/MyListing";
 import PrivateRoute from "./PrivateRoute";
+import NotFound from "../components/NotFound";
 
 export const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ export const router = createBrowserRouter([
             <MyListing />
           </PrivateRoute>
         ),
+      },
+      {
+        path: "*",
+        element: <NotFound />,
       },
     ],
   },

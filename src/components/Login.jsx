@@ -9,6 +9,8 @@ import {
   signOut,
 } from "firebase/auth";
 import { FaGoogle, FaEnvelope, FaLock, FaUser } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const [state, setState] = useState("login"); // "login" or "signup"
@@ -18,10 +20,9 @@ const Login = () => {
     password: "",
     photoURL: "",
   });
-
   const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Track user authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -36,6 +37,8 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
       if (state === "login") {
         await signInWithEmailAndPassword(
@@ -43,8 +46,14 @@ const Login = () => {
           formData.email,
           formData.password
         );
-        alert("Logged in successfully!");
+        toast.success("Logged in successfully!");
       } else {
+        if (formData.password.length < 6) {
+          toast.error("Password must be at least 6 characters long");
+          setLoading(false);
+          return;
+        }
+
         const res = await createUserWithEmailAndPassword(
           auth,
           formData.email,
@@ -54,31 +63,44 @@ const Login = () => {
           displayName: formData.name,
           photoURL: formData.photoURL || null,
         });
-        alert("Account created successfully!");
+        toast.success("Account created successfully!");
       }
+      setFormData({ name: "", email: "", password: "", photoURL: "" });
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
-      alert("Logged in with Google!");
+      toast.success("Logged in with Google!");
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
-    alert("Logged out successfully!");
+    try {
+      await signOut(auth);
+      toast.success("Logged out successfully!");
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   return (
     <div className="flex h-[700px] w-full">
+      <ToastContainer position="top-right" />
+
+      {/* Left Image */}
       <div className="w-full hidden md:inline-block">
         <img
           className="h-full"
@@ -88,134 +110,141 @@ const Login = () => {
       </div>
 
       <div className="w-full flex flex-col items-center justify-center">
-        <form
-          onSubmit={handleSubmit}
-          className="md:w-96 w-80 flex flex-col items-center justify-center"
-        >
-          <h2 className="text-4xl text-gray-900 font-medium">
-            {state === "login" ? "Sign in" : "Sign up"}
-          </h2>
-          <p className="text-sm text-gray-500/90 mt-3">
-            {state === "login"
-              ? "Welcome back! Please sign in to continue"
-              : "Create a new account"}
-          </p>
+        {!currentUser && (
+          <form
+            onSubmit={handleSubmit}
+            className="md:w-96 w-80 flex flex-col items-center justify-center"
+          >
+            <h2 className="text-4xl text-gray-900 font-medium">
+              {state === "login" ? "Sign in" : "Sign up"}
+            </h2>
+            <p className="text-sm text-gray-500/90 mt-3">
+              {state === "login"
+                ? "Welcome back! Please sign in to continue"
+                : "Create a new account"}
+            </p>
 
-          {/* Google Sign-In */}
-          {!currentUser && (
+            {/* Google Sign-In */}
             <button
               type="button"
               onClick={handleGoogleSignIn}
+              disabled={loading}
               className="w-full mt-8 bg-gray-500/10 flex items-center justify-center h-12 rounded-full gap-2"
             >
               <FaGoogle className="text-red-500" size={20} />
-              Continue with Google
+              {loading ? "Processing..." : "Continue with Google"}
             </button>
-          )}
 
-          <div className="flex items-center gap-4 w-full my-5">
-            <div className="w-full h-px bg-gray-300/90"></div>
-            <p className="w-full text-nowrap text-sm text-gray-500/90">
-              or {state} with email
-            </p>
-            <div className="w-full h-px bg-gray-300/90"></div>
-          </div>
+            <div className="flex items-center gap-4 w-full my-5">
+              <div className="w-full h-px bg-gray-300/90"></div>
+              <p className="w-full text-nowrap text-sm text-gray-500/90">
+                or {state} with email
+              </p>
+              <div className="w-full h-px bg-gray-300/90"></div>
+            </div>
 
-          {/* Name field for signup */}
-          {state === "signup" && (
+            {/* Name field for signup */}
+            {state === "signup" && (
+              <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
+                <FaUser className="text-gray-400" />
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full outline-none"
+                  required
+                />
+              </div>
+            )}
+
+            {/* Email */}
             <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
-              <FaUser className="text-gray-400" />
+              <FaEnvelope className="text-gray-400" />
               <input
-                type="text"
-                name="name"
-                placeholder="Name"
-                value={formData.name}
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
                 onChange={handleChange}
                 className="w-full outline-none"
                 required
               />
             </div>
-          )}
 
-          {/* Email */}
-          <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
-            <FaEnvelope className="text-gray-400" />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full outline-none"
-              required
-            />
-          </div>
-
-          {/* Password */}
-          <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
-            <FaLock className="text-gray-400" />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full outline-none"
-              required
-            />
-          </div>
-
-          {/* Photo URL for signup */}
-          {state === "signup" && (
-            <input
-              type="text"
-              name="photoURL"
-              placeholder="Photo URL (optional)"
-              value={formData.photoURL}
-              onChange={handleChange}
-              className="w-full h-12 px-4 mb-4 border rounded-full outline-none"
-            />
-          )}
-
-          {/* Submit button or user profile */}
-          {currentUser ? (
-            <div className="flex items-center gap-2 mt-4">
-              <img
-                src={currentUser.photoURL || "https://via.placeholder.com/40"}
-                alt={currentUser.displayName || "User"}
-                className="w-10 h-10 rounded-full"
+            {/* Password */}
+            <div className="flex items-center w-full h-12 mb-4 border rounded-full px-4 gap-2">
+              <FaLock className="text-gray-400" />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full outline-none"
+                required
               />
-              <span className="text-gray-700">
-                {currentUser.displayName || currentUser.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="ml-2 px-3 py-1 bg-red-500 text-white rounded"
-              >
-                Logout
-              </button>
             </div>
-          ) : (
+
+            {/* Photo URL for signup */}
+            {state === "signup" && (
+              <input
+                type="text"
+                name="photoURL"
+                placeholder="Photo URL (optional)"
+                value={formData.photoURL}
+                onChange={handleChange}
+                className="w-full h-12 px-4 mb-4 border rounded-full outline-none"
+              />
+            )}
+
+            {/* Submit Button */}
             <button
               type="submit"
+              disabled={loading}
               className="mt-4 w-full h-12 rounded-full text-white bg-indigo-500 hover:opacity-90 transition-opacity"
             >
-              {state === "login" ? "Login" : "Sign Up"}
+              {loading
+                ? "Processing..."
+                : state === "login"
+                ? "Login"
+                : "Sign Up"}
             </button>
-          )}
 
-          <p className="text-gray-500/90 text-sm mt-4">
-            {state === "login"
-              ? "Don't have an account?"
-              : "Already have an account?"}{" "}
-            <span
-              onClick={() => setState(state === "login" ? "signup" : "login")}
-              className="text-indigo-400 hover:underline cursor-pointer"
-            >
-              {state === "login" ? "Sign up" : "Login"}
+            <p className="text-gray-500/90 text-sm mt-4">
+              {state === "login"
+                ? "Don't have an account?"
+                : "Already have an account?"}{" "}
+              <span
+                onClick={() => setState(state === "login" ? "signup" : "login")}
+                className="text-indigo-400 hover:underline cursor-pointer"
+              >
+                {state === "login" ? "Sign up" : "Login"}
+              </span>
+            </p>
+          </form>
+        )}
+
+        {/* User Profile */}
+        {currentUser && (
+          <div className="flex flex-col items-center gap-2 mt-4">
+            <img
+              src={currentUser.photoURL || "https://via.placeholder.com/40"}
+              alt={currentUser.displayName || "User"}
+              className="w-20 h-20 rounded-full"
+            />
+            <span className="text-gray-700 text-lg">
+              {currentUser.displayName || currentUser.email}
             </span>
-          </p>
-        </form>
+            <button
+              onClick={handleLogout}
+              className="mt-2 px-4 py-2 bg-red-500 text-white rounded"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
