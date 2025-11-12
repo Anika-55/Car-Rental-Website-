@@ -3,6 +3,8 @@ import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
 import Loader from "../components/Loader";
 import { toast } from "react-toastify";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../firebase/firebase.config";
 
 const CarDetails = () => {
   const { id } = useParams();
@@ -14,10 +16,7 @@ const CarDetails = () => {
   const currency = import.meta.env.VITE_CURRENCY || "$";
 
   // Mock logged-in user, replace with actual auth
-  const user = {
-    name: "John Doe",
-    email: "johndoe@example.com",
-  };
+  const [user] = useAuthState(auth);
 
   useEffect(() => {
     const fetchCar = async () => {

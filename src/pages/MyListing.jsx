@@ -73,6 +73,7 @@ const MyListing = () => {
         category: editingCar.category,
         pricePerDay: editingCar.pricePerDay,
         image: editingCar.image,
+        isAvailable: editingCar.isAvailable,
       };
 
       const res = await fetch(`http://localhost:3000/cars/${editingCar._id}`, {

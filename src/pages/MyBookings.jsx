@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../firebase/firebase.config";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
   const currency = import.meta.env.VITE_CURRENCY || "$";
 
   // Replace this with actual logged-in user email
-  const userEmail = "johndoe@example.com";
-
+  const [user] = useAuthState(auth);
   const fetchMyBookings = async () => {
+    if (!user?.email) return; // ✅ wait for logged-in user's email
     try {
       const res = await fetch("http://localhost:3000/bookings");
       const data = await res.json();
       if (data.success) {
-        // Filter bookings by logged-in user
         const myBookings = data.result
-          .filter((b) => b.userEmail === userEmail)
+          .filter((b) => b.userEmail === user.email) // ✅ compare with user.email
           .map((b) => ({
             _id: b._id,
             car: {
@@ -29,7 +30,7 @@ const MyBookings = () => {
             },
             pickupDate: b.pickupDate,
             returnDate: b.returnDate,
-            status: b.status || "confirmed", // default status
+            status: b.status || "confirmed",
             price:
               ((new Date(b.returnDate) - new Date(b.pickupDate)) /
                 (1000 * 60 * 60 * 24)) *
@@ -45,7 +46,7 @@ const MyBookings = () => {
 
   useEffect(() => {
     fetchMyBookings();
-  }, []);
+  }, [user]);
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 2xl:px-48 mt-16 text-sm max-w-7xl">
