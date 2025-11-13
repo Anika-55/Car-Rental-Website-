@@ -13,7 +13,7 @@ const MyBookings = () => {
   const fetchMyBookings = async () => {
     if (!user?.email) return; // ✅ wait for logged-in user's email
     try {
-      const res = await fetch("http://localhost:3000/bookings");
+      const res = await fetch("https://car-r-server.vercel.app/bookings");
       const data = await res.json();
       if (data.success) {
         const myBookings = data.result

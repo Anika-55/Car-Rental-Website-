@@ -20,7 +20,7 @@ const CarDetails = () => {
   useEffect(() => {
     const fetchCar = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/cars/${id}`);
+        const res = await fetch(`https://car-r-server.vercel.app/cars/${id}`);
         const data = await res.json();
         if (data.success) setCar(data.result);
         else setError("Car not found");
@@ -53,7 +53,7 @@ const CarDetails = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:3000/bookings", {
+      const res = await fetch("https://car-r-server.vercel.app/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookingData),
@@ -61,7 +61,7 @@ const CarDetails = () => {
       const data = await res.json();
       if (data.success) {
         toast.success("Booking successful!");
-        navigate("/my-bookings"); // redirect to MyBookings page
+        navigate("/my-bookings");
       } else {
         toast.error("Booking failed");
       }

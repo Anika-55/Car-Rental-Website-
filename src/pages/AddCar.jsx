@@ -26,7 +26,7 @@ const AddCar = () => {
     e.preventDefault();
 
     try {
-      await fetch("http://localhost:3000/cars", {
+      await fetch("https://car-r-server.vercel.app/cars", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
-        loader: () => fetch("http://localhost:3000/cars"),
+        loader: () => fetch("https://car-r-server.vercel.app/cars"),
       },
       {
         path: "login",
@@ -32,12 +32,12 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
         loader: ({ params }) =>
-          fetch(`http://localhost:3000/cars/${params.id}`),
+          fetch(`https://car-r-server.vercel.app/cars/${params.id}`),
       },
       {
         path: "cars",
         element: <Cars />,
-        loader: () => fetch("http://localhost:3000/cars"),
+        loader: () => fetch("https://car-r-server.vercel.app/cars"),
       },
       {
         path: "my-bookings",

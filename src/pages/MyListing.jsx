@@ -16,7 +16,9 @@ const MyListing = () => {
   const fetchMyCars = async () => {
     if (!user?.email) return;
     try {
-      const res = await fetch(`http://localhost:3000/cars/email/${user.email}`);
+      const res = await fetch(
+        `https://car-r-server.vercel.app/cars/email/${user.email}`
+      );
       const data = await res.json();
       if (data.success) setCars(data.result);
     } catch (err) {
@@ -46,7 +48,7 @@ const MyListing = () => {
 
     if (result.isConfirmed) {
       try {
-        const res = await fetch(`http://localhost:3000/cars/${id}`, {
+        const res = await fetch(`https://car-r-server.vercel.app/cars/${id}`, {
           method: "DELETE",
         });
         const data = await res.json();
@@ -76,13 +78,16 @@ const MyListing = () => {
         isAvailable: editingCar.isAvailable,
       };
 
-      const res = await fetch(`http://localhost:3000/cars/${editingCar._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedCar),
-      });
+      const res = await fetch(
+        `https://car-r-server.vercel.app/cars/${editingCar._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedCar),
+        }
+      );
 
       const data = await res.json();
       if (data.success) {
