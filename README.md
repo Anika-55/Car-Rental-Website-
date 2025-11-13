@@ -1,3 +1,33 @@
+
+🛠 Features
+User Features
+
+Browse and search cars by brand, category, or location.
+
+View detailed information about each car.
+
+Book cars with a simple booking form.
+
+View and manage bookings.
+
+User authentication using Firebase or JWT.
+
+Responsive design for desktop and mobile.
+
+Tech Stack
+
+Frontend: React, React Router, Tailwind CSS / Bootstrap (your choice), Axios, React Toastify.
+
+Backend: Node.js, Express.js.
+
+Database: MongoDB.
+
+Authentication: Firebase Authentication
+##LIVE LINK: https://tangerine-licorice-900ee0.netlify.app/
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
